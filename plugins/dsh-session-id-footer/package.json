@@ -1,0 +1,27 @@
+{
+  "name": "dsh-session-id-footer",
+  "version": "0.1.0",
+  "description": "Session ID footer for DeepSeek Harness: shows the current session id in small text under the composer, click to copy.",
+  "private": true,
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "package.json"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
+  "license": "MIT"
+}
