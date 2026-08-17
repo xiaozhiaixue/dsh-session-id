@@ -37,9 +37,9 @@ DSH 的会话（session）是工作区内的核心对象，每个会话有全局
 
 ### 3.1 插件形态（profile bundle）
 
-沿用官方外部插件分发路径（`docs/user/develop/basic/publish.md`）：
+沿用官方外部插件分发路径（`docs/user/develop/basic/publish.md`），**仓库根目录即 bundle 包**（与教程 `hello-plugin` 布局一致，`dsh plugin add ./dsh-session-id` 与 `dsh plugin add github:realpkuasule/dsh-session-id` 都直接以仓库根为包）：
 
-- `package.json` 声明 `dsh.bundle.patch: ./cordis.patch.yml`（bundle 自带 patch 层，安装即自动插入插件行）与 `dsh.client.platform: web`（浏览器半部发现机制）；
+- `package.json` 声明 `dsh.bundle.patch: ./cordis.patch.yml`（bundle 自带 patch 层，安装即自动插入插件行）与 `dsh.client.platform: web`（浏览器半部发现机制）；并含 `exports["./client"]`（客户端 bundle 出口，见 `docs/subsystems/client-modules.md`）与 `repository`（官方清单字段）；
 - `cordis.patch.yml`：一个 `- insert:` 条目，`id: session-id-footer, name: dsh-session-id-footer`，与既有手动注册行完全一致（`~/.dsh/profiles/web/cordis.patch.yml`），因此从本仓库 `dsh plugin` 安装后与现网安装**同名同构**，可直接替换；
 - 纯 JS，无构建步骤，git 安装无需 `prepare` / `allowBuilds`。
 
@@ -80,16 +80,16 @@ DSH 的会话（session）是工作区内的核心对象，每个会话有全局
 
 ## 6. 仓库布局
 
+按官方 bundle 布局（`docs/user/develop/basic/publish.md`），仓库根即包：
+
 ```
 dsh-session-id/
+├── package.json          # bundle manifest: dsh.bundle.patch + dsh.client.platform: web
+├── cordis.patch.yml      # the bundle's patch layer (inserts the plugin row)
+├── lib/
+│   ├── index.js          # host half (empty apply)
+│   └── client.js         # browser half (__ModuleLoader__ bundle)
 ├── README.md
 ├── DESIGN.md
-├── LICENSE                # MIT, Copyright (c) 2026 realpkuasule
-└── plugins/
-    └── dsh-session-id-footer/
-        ├── package.json
-        ├── cordis.patch.yml
-        └── lib/
-            ├── index.js   # host half (empty apply)
-            └── client.js  # browser half (__ModuleLoader__ bundle)
+└── LICENSE               # MIT, Copyright (c) 2026 realpkuasule
 ```

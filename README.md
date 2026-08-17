@@ -4,7 +4,7 @@
 
 DeepSeek Harness 会话 ID 显示插件：在输入框（composer）下方的 footer 位置以小字显示当前会话 ID，点击一键复制。
 
-> 仓库 / 目录名是 `dsh-session-id`；内部 bundle 包名沿用既有安装名 `dsh-session-id-footer`（与 `~/.dsh/profiles/web/cordis.patch.yml` 中的注册名一致，`dsh plugin` 从本仓库安装后即与现网安装完全同名）。
+> 仓库 / 目录名是 `dsh-session-id`；内部 bundle 包名沿用既有安装名 `dsh-session-id-footer`（与 `~/.dsh/profiles/web/cordis.patch.yml` 中的注册名一致，`dsh plugin` 从本仓库安装后即与现网安装完全同名）。这与官方惯例一致——教程示例仓库 `hello-plugin` 的包名即为 `dsh-hello-plugin`（仓库名 ≠ 包名，包名带 `dsh-` 前缀）。
 
 ## Why
 
@@ -23,12 +23,12 @@ DSH 的会话 ID 是排查、归档、跨会话协作时的关键标识，但 GU
 
 ## Install
 
-> 标准 DSH **profile bundle**（官方外部插件分发路径，见 [docs/user/develop/basic/publish.md](https://github.com/deepseek-ai/deepseek-harness/blob/main/docs/user/develop/basic/publish.md)）：包声明 `dsh.bundle.patch`，`dsh plugin` 安装后由 bundle 的 `cordis.patch.yml` 自动插入插件行。无需构建步骤——纯 JS，git 安装不需要 `prepare` 脚本或 `allowBuilds`。
+> 标准 DSH **profile bundle**（官方外部插件分发路径，见 [docs/user/develop/basic/publish.md](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md)）：仓库根目录即 bundle 包（`package.json` 声明 `dsh.bundle.patch`），`dsh plugin` 安装后由 bundle 的 `cordis.patch.yml` 自动插入插件行。无需构建步骤——纯 JS，git 安装不需要 `prepare` 脚本或 `allowBuilds`。
 
 ### Option A — official `dsh plugin` (recommended)
 
 ```bash
-# From a directory that contains this checkout:
+# From a directory that contains this checkout (the repo root IS the package):
 dsh plugin --profile web add ./dsh-session-id
 # or straight from GitHub (plain JS, no build permission needed):
 dsh plugin --profile web add github:realpkuasule/dsh-session-id
@@ -39,13 +39,17 @@ dsh --profile web --dump-config | grep -A2 dsh-session-id-footer
 
 `dsh plugin` links the package, records it in the profile's dependencies, and the bundle layer inserts the `session-id-footer` plugin row.
 
+### Discoverability
+
+Add the [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic to your plugin repository for discoverability — the official [DeepSeek Harness README](https://github.com/deepseek-ai/deepseek-harness#community-and-support) recommends it, and `dsh-plugin` is the shared topic under which the community finds DSH plugins (both mirrors of this repo, `realpkuasule/dsh-session-id` and `xiaozhiaixue/dsh-session-id`, carry it).
+
 ### Option B — manual (no CLI)
 
 ```bash
-# 1. Copy the package into your profile's node_modules
+# 1. Copy the package (repo root) into your profile's node_modules
 DSH_HOME="${DSH_HOME:-$HOME/.dsh}"
 mkdir -p "$DSH_HOME/profiles/node_modules/dsh-session-id-footer"
-cp -R plugins/dsh-session-id-footer/. "$DSH_HOME/profiles/node_modules/dsh-session-id-footer/"
+cp -R . "$DSH_HOME/profiles/node_modules/dsh-session-id-footer/"
 ```
 
 ```yaml
@@ -81,18 +85,18 @@ Node (index.js, profile Cordis plugin)
 
 ## Repository layout
 
+The repository root **is** the bundle package, following the official bundle layout from [publish.md](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md):
+
 ```
 dsh-session-id/
+├── package.json          # bundle manifest: dsh.bundle.patch + dsh.client.platform: web
+├── cordis.patch.yml      # the bundle's patch layer (inserts the plugin row)
+├── lib/
+│   ├── index.js          # host half (empty apply)
+│   └── client.js         # browser half (__ModuleLoader__ bundle)
 ├── README.md
-├── DESIGN.md              # full design doc: decisions, risks, verification
-├── LICENSE                # MIT
-└── plugins/
-    └── dsh-session-id-footer/
-        ├── package.json   # dsh.bundle.patch + dsh.client.platform: web declarations
-        ├── cordis.patch.yml   # the bundle's patch layer (inserts the plugin row)
-        └── lib/
-            ├── index.js   # host half (empty apply)
-            └── client.js  # browser half (__ModuleLoader__ bundle)
+├── DESIGN.md             # full design doc: decisions, risks, verification
+└── LICENSE               # MIT
 ```
 
 ## License
